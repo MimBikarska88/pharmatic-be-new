@@ -4,6 +4,7 @@ const {
   validateAddressFields,
   checkIfEmailExists,
   create,
+  logout,
 } = require("../services/CustomerService");
 const { createToken } = require("../services/jwtService");
 
@@ -25,9 +26,31 @@ const CustomerController = {
     try {
       const user = await create(req.body);
       const token = await createToken(user);
-      return res.status(200).json({ token: token });
+      res.cookie("token", token, { httpOnly: true });
+      return res.status(200);
     } catch (err) {
       return res.status(500).json({ message: err.message });
+    }
+  },
+  logout: async (req, res) => {
+    logout(req, res);
+    res.status(200).json("User logged out");
+  },
+  login: async (req, res) => {
+    const { username, password } = req.body;
+    try {
+      if (!username || !password) {
+        throw new Error("All fields are required");
+      }
+      const user = await UserService.login(username, password);
+
+      if (user) {
+        token = createToken(user);
+        res.cookie("token", token, { httpOnly: true });
+        res.status(200).json("User logged in!");
+      }
+    } catch (err) {
+      return res.status(400).json("Invalid email or password");
     }
   },
 };

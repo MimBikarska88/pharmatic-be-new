@@ -136,9 +136,26 @@ const create = async (data) => {
   return saved;
 };
 
+const logout = (req, res) => {
+  res.clearCookie("token");
+};
+
+const login = async (email, password) => {
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    throw Error("Incorrect email or password");
+  }
+
+  if (!bcrypt.compare(password, user.password)) {
+    throw Error("Incorrect email or password");
+  }
+  return user;
+};
 module.exports = {
   create,
   validateContactFields,
   validateAddressFields,
   checkIfEmailExists,
+  logout,
+  login,
 };

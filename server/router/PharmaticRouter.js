@@ -2,9 +2,6 @@ const { Router } = require("express");
 const { CustomerController } = require("../../controllers/CustomerController");
 const { uploadLatestMedicalCheckup } = require("../config/multerConfig");
 const PharmaticRouter = Router();
-PharmaticRouter.get("/customer", (req, res) => {
-  res.json("hello");
-});
 PharmaticRouter.post(
   "/customer/register",
   uploadLatestMedicalCheckup,
@@ -16,6 +13,8 @@ PharmaticRouter.post(
   },
   CustomerController["register"]
 );
+PharmaticRouter.post("/logout", CustomerController["logout"]);
+PharmaticRouter.post("/login", CustomerController["login"]);
 module.exports = {
   PharmaticRouter,
 };
