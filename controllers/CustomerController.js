@@ -10,25 +10,28 @@ const { createToken } = require("../services/jwtService");
 
 const CustomerController = {
   register: async (req, res) => {
-    const contactsErrors = validateContactFields(req.body);
+    const customer = JSON.parse(req.body.customer);
+    customer.latestMedicalCheckup = req.file.path;
+    const contactsErrors = validateContactFields(customer);
     if (Object.keys(contactsErrors).length > 0) {
       return res.status(400).json({ tabIndex: 0, errors: contactsErrors });
     }
-    const addressErrors = validateAddressFields(req.body);
+    const addressErrors = validateAddressFields(customer);
     if (Object.keys(addressErrors).length > 0) {
       return res.status(400).json({ tabIndex: 1, errors: addressErrors });
     }
-    if (await checkIfEmailExists(req.body?.email)) {
+    if (await checkIfEmailExists(customer?.email)) {
       return res
         .status(400)
         .json({ message: "Customer with this email exists already!" });
     }
     try {
-      const user = await create(req.body);
+      const user = await create(customer);
       const token = await createToken(user);
       res.cookie("token", token, { httpOnly: true });
       return res.status(200);
     } catch (err) {
+      console.log(err);
       return res.status(500).json({ message: err.message });
     }
   },

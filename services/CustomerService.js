@@ -115,6 +115,7 @@ const mapToCustomer = async (data) => {
     surname: data.lastName,
     birthDate: new Date(data.birthDate),
     phoneNumber: data.phoneNumber,
+    latestMedicalCheckup: data.filePath || "",
     password: await bcrypt.hash(data.password, 10),
     detailedAddress: data.detailedAddress,
     country: data.country,
@@ -124,7 +125,6 @@ const mapToCustomer = async (data) => {
     medicalRecords: data.medicalRecords,
     medications: data.medications,
     generalPractitioner: data.generalPractitioner,
-    latestMedicalCheckup: data.filePath,
     allergicSymptoms: data.allergicSymptoms,
     allergicTriggers: data.allergicTriggers,
   });
