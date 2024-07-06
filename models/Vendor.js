@@ -59,25 +59,21 @@ const VendorSchema = new Schema(
     },
     EORI: {
       type: String,
-      required: true,
+      default: null,
     },
     EUVAT: {
       type: String,
-      required: true,
+      default: null,
     },
     FDANumber: {
       type: String,
-      required: true,
+      default: null,
     },
     FEINumber: {
       type: String,
-      required: true,
+      default: null,
     },
     password: {
-      type: String,
-      required: true,
-    },
-    confirmPassword: {
       type: String,
       required: true,
     },
@@ -95,6 +91,10 @@ const VendorSchema = new Schema(
     },
     postcode: {
       type: String,
+      required: true,
+    },
+    residence: {
+      type: Number,
       required: true,
     },
   },

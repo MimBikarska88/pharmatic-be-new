@@ -28,15 +28,14 @@ const selectFileLocation = (filename) => {
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const location = selectFileLocation(file.fieldname);
-    console.log(file);
-    console.log(location);
+    //req.location = location;
     cb(null, location);
   },
   filename: (req, file, cb) => {
     const newFileName = path.join(
       Date.now().toString() + path.extname(file.originalname)
     );
-    console.log(newFileName);
+    req[`${file.fieldname}`] = newFileName;
     cb(null, newFileName);
   },
 });

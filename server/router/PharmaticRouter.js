@@ -13,6 +13,7 @@ PharmaticRouter.post(
 PharmaticRouter.post(
   "/vendor/register",
   upload.fields([
+    { name: "manufactoringLicense", maxCount: 1 },
     { name: "importExportLicense", maxCount: 1 },
     { name: "specialAccessScheme", maxCount: 1 },
     { name: "clinicalTrialParticipation", maxCount: 1 },
