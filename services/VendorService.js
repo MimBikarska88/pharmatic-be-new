@@ -206,14 +206,17 @@ const findIfVendorWithSuchEmailExists = async (vendor) => {
 };
 const findIfVendorWithCompanyNameExists = async (vendor) => {
   const existing = await Vendor.findOne({ companyName: vendor.companyName });
+  console.log("company name", existing);
   return existing;
 };
 const findIfVendorWithSuchEORIExists = async (vendor) => {
   const existing = await Vendor.findOne({ EORI: vendor.EORI });
+  console.log("EORI", existing);
   return existing;
 };
 const findIfVendorWithSuchEUVATExists = async (vendor) => {
   const existing = await Vendor.findOne({ EUVAT: vendor.EUVAT });
+  console.log("Euvat", existing);
   return existing;
 };
 const findIfVendorWithSuchFDAExists = async (vendor) => {
@@ -222,29 +225,30 @@ const findIfVendorWithSuchFDAExists = async (vendor) => {
 };
 const findIfVendorWithSuchFEIIExists = async (vendor) => {
   const existing = await Vendor.findOne({ FEIINumber: vendor.FEIINumber });
+  console.log("FEII", existing);
   return existing;
 };
-const findIfSuchVendorExists = (vendor) => {
+const findIfSuchVendorExists = async (vendor) => {
   const Existing = {};
-  if (findIfVendorWithCompanyNameExists(vendor)) {
+  if (await findIfVendorWithCompanyNameExists(vendor)) {
     Existing.companyName = true;
   }
-  if (findIfVendorWithSuchEmailExists(vendor)) {
+  if (await findIfVendorWithSuchEmailExists(vendor)) {
     Existing.email = true;
   }
   if (vendor.residence === ResidenceType.EU) {
-    if (findIfVendorWithSuchEORIExists(vendor)) {
+    if (await findIfVendorWithSuchEORIExists(vendor)) {
       Existing.EORI = true;
     }
-    if (findIfVendorWithSuchEUVATExists(vendor)) {
+    if (await findIfVendorWithSuchEUVATExists(vendor)) {
       Existing.EUVAT = true;
     }
   }
   if (vendor.residence === ResidenceType.NON_EU) {
-    if (findIfVendorWithSuchFDAExists(vendor)) {
+    if (await findIfVendorWithSuchFDAExists(vendor)) {
       Existing.FDANumber = true;
     }
-    if (findIfVendorWithSuchFEIIExists(vendor)) {
+    if (await findIfVendorWithSuchFEIIExists(vendor)) {
       Existing.FEIINumber = true;
     }
   }
@@ -293,6 +297,63 @@ const saveVendor = async (req, res) => {
   const created = await newVendor.save();
   return created;
 };
+
+const login = async (req) => {
+  console.log(req.body);
+  const { password, FDANumber, EORI, residence } = req.body;
+  let found = null;
+  if (residence === ResidenceType.EU) {
+    found = await Vendor.findOne({ EORI: EORI });
+  }
+  if (residence === ResidenceType.NON_EU) {
+    found = await Vendor.findOne({ FDANumber: FDANumber });
+  }
+  if (!found) {
+    throw Error("Wrong credentials!");
+  }
+  if (!(await bcrypt.compare(password, found.password))) {
+    throw Error("Wrong credentials");
+  }
+  return found;
+};
+
+const licenseCodes = {
+  manufactoringLicense: 1,
+  specialAccessScheme: 2,
+  clinicalTrialParticipation: 3,
+  specialAuthorizationForControlledSubstances: 4,
+};
+const labels = {
+  manufactoringLicense: "Over-The-Counter Type of Medications",
+  specialAccessScheme: "Special Access Scheme",
+  clinicalTrialParticipation: "Clinical Trial Participation",
+  specialAuthorizationForControlledSubstances:
+    "Special Authorization for Controlled Substances",
+};
+const getVendorAvailableLicenses = async (id) => {
+  const found = await Vendor.findById(id).lean();
+  if (!found) {
+    throw Error("Such Vendor does not exist");
+  }
+  console.log(found);
+  const availableLicenses = {
+    manufactoringLicense: null,
+    specialAccessScheme: null,
+    clinicalTrialParticipation: null,
+    specialAuthorizationForControlledSubstances: null,
+  };
+  const licenses = {};
+  console.log(found);
+  Object.keys(availableLicenses).forEach((license) => {
+    if (found[`${license}`]) {
+      licenses[`${license}`] = {
+        label: labels[`${license}`],
+        code: licenseCodes[`${license}`],
+      };
+    }
+  });
+  return licenses;
+};
 module.exports = {
   validateOrganizationFields,
   validateLicenses,
@@ -300,5 +361,7 @@ module.exports = {
   validatePassword,
   findIfSuchVendorExists,
   saveVendor,
+  login,
   tabName,
+  getVendorAvailableLicenses,
 };

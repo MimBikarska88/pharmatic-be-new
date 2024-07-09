@@ -1,8 +1,12 @@
 const { Router } = require("express");
 const { CustomerController } = require("../../controllers/CustomerController");
 const { VendorController } = require("../../controllers/VendorController");
+const {
+  PharmaceuticalsController,
+} = require("../../controllers/PharmaceuticalsController");
 
 const { upload } = require("../config/multerConfig");
+const { getVendorAvailableLicenses } = require("../../services/VendorService");
 
 const PharmaticRouter = Router();
 PharmaticRouter.post(
@@ -23,6 +27,13 @@ PharmaticRouter.post(
 );
 PharmaticRouter.post("/logout", CustomerController["logout"]);
 PharmaticRouter.post("/login", CustomerController["login"]);
+PharmaticRouter.post("/vendor/login", VendorController["login"]);
+PharmaticRouter.get("/vendor/licenses", VendorController["getLicenses"]);
+PharmaticRouter.get(
+  "/pharmaceutical/classifications",
+  PharmaceuticalsController["getClassifications"]
+);
+
 module.exports = {
   PharmaticRouter,
 };

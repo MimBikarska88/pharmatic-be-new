@@ -6,8 +6,10 @@ const {
   validatePassword,
   findIfSuchVendorExists,
   saveVendor,
+  login,
+  getVendorAvailableLicenses,
 } = require("../services/VendorService");
-
+const { createToken } = require("../services/JwtService");
 module.exports = {
   VendorController: {
     register: async (req, res) => {
@@ -29,7 +31,8 @@ module.exports = {
         return res.status(400).json({ Errors, tabName: tabName.credentials });
       }
       const Existing = await findIfSuchVendorExists(vendor);
-      if (Object.keys(Existing).length > 0) {
+      console.log(Existing);
+      if (Object.values(Existing).some((value) => value)) {
         return res.status(400).json({ Existing });
       }
       try {
@@ -40,6 +43,30 @@ module.exports = {
         return res
           .status(400)
           .json({ message: { ...err }, tabName: tabName.credentials });
+      }
+    },
+    login: async (req, res) => {
+      try {
+        const found = await login(req);
+        if (found) {
+          token = createToken(found);
+          res.cookie("token", token, { httpOnly: true });
+          res.status(200).json("User logged in!");
+        }
+      } catch (err) {
+        console.log(err.message);
+        res.status(400).json({ message: err.message });
+      }
+    },
+    getLicenses: async (req, res) => {
+      try {
+        const id = req.user.id;
+        const licenses = await getVendorAvailableLicenses(id);
+        console.log(licenses);
+        res.status(200).json({ licenses });
+      } catch (err) {
+        console.log(err.message);
+        res.status(400).json({ message: err.message });
       }
     },
   },

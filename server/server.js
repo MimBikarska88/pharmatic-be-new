@@ -9,11 +9,11 @@ const secret = "pharmatic";
 const app = express();
 const start = async () => {
   await configDatabase();
-  app.use(cors());
+  app.use(cors({ origin: "http://localhost:3000", credentials: true }));
   app.use(express.urlencoded({ extended: true }));
-  app.use(session());
   app.use(cookieParser(secret));
   app.use(express.json());
+  app.use(session());
   app.use("/", PharmaticRouter);
   app.listen(PORT, () => {
     console.log(`Application running on port ${PORT}`);
