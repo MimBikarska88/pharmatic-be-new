@@ -33,6 +33,10 @@ PharmaticRouter.get(
   "/pharmaceutical/classifications",
   PharmaceuticalsController["getClassifications"]
 );
+PharmaticRouter.post(
+  "/products",
+  PharmaceuticalsController["createPharmaceuticalProduct"]
+);
 
 module.exports = {
   PharmaticRouter,
