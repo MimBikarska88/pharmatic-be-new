@@ -354,6 +354,10 @@ const getVendorAvailableLicenses = async (id) => {
   });
   return licenses;
 };
+const findVendorById = async (id) => {
+  const vendor = await Vendor.findById(id);
+  return vendor;
+};
 module.exports = {
   validateOrganizationFields,
   validateLicenses,
@@ -363,5 +367,7 @@ module.exports = {
   saveVendor,
   login,
   tabName,
+  ResidenceType,
   getVendorAvailableLicenses,
+  findVendorById,
 };

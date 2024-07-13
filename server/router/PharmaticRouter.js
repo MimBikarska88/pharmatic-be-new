@@ -35,6 +35,10 @@ PharmaticRouter.get(
 );
 PharmaticRouter.post(
   "/products",
+  upload.fields([
+    { name: "pil", maxCount: 1 },
+    { name: "photo", maxCount: 1 },
+  ]),
   PharmaceuticalsController["createPharmaceuticalProduct"]
 );
 

@@ -12,6 +12,11 @@ const PharmaceuticalProductSchema = new Schema({
     default: "",
     require: true,
   },
+  photo: {
+    type: String,
+    default: null,
+    required: true,
+  },
   appearance: {
     type: String,
     default: "",
@@ -32,14 +37,14 @@ const PharmaceuticalProductSchema = new Schema({
     default: "",
     require: true,
   },
-  currencyNonEu: {
-    type: String,
-    default: "",
+  priceEu: {
+    type: Number,
+    default: 0,
     require: true,
   },
-  currencyEu: {
-    type: String,
-    default: "",
+  priceNonEu: {
+    type: Number,
+    default: 0,
     require: true,
   },
   publishedOn: {
@@ -60,6 +65,9 @@ const PharmaceuticalProductSchema = new Schema({
     ref: "Vendor",
     required: true,
   },
+  licenseType: {
+    type: Number,
+  },
   classification: {
     type: Types.ObjectId,
     ref: "MedicationClass",
@@ -67,7 +75,7 @@ const PharmaceuticalProductSchema = new Schema({
   },
 });
 
-const PharmaceuticalProduct = mongoose.model(
+const PharmaceuticalProduct = model(
   "PharmaceuticalProduct",
   PharmaceuticalProductSchema
 );

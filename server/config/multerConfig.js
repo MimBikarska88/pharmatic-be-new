@@ -8,6 +8,8 @@ const locationVendorSAS = "uploads/vendor/sas";
 const locationClinicalTrialParticipation =
   "uploads/vendor/clinicalTrialParticipation";
 const locationSpecialControlSubstances = "uploads/vendor/controlledSubstances";
+const drugsPil = "uploads/vendor/drugs/pils";
+const drugsImages = "uploads/vendor/drugs/images";
 const selectFileLocation = (filename) => {
   switch (filename) {
     case "latestMedicalCheckup":
@@ -22,6 +24,10 @@ const selectFileLocation = (filename) => {
       return locationClinicalTrialParticipation;
     case "specialAuthorizationForControlledSubstances":
       return locationSpecialControlSubstances;
+    case "pil":
+      return drugsPil;
+    case "photo":
+      return drugsImages;
   }
   return "uploads";
 };
