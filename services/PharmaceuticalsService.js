@@ -1,5 +1,6 @@
 const { PharmaceuticalProduct } = require("../models/PharmaceuticalProduct");
 const { ResidenceType } = require("../services/VendorService");
+const path = require("path");
 const ISO_REGEX = /^ISO\s?\d{4}(:\d{4})?$/;
 const ISO_ERROR_MISSING = "ISO Certificate number required";
 const WRONG_ISO_FORMAT = "ISO Certificate format is incorrect";
@@ -115,7 +116,16 @@ const saveProduct = async (product, vendorId) => {
   const created = await newProduct.save();
   return created;
 };
+const findPharmaceuticalsByVendorId = async (vendorId) => {
+  const products = await PharmaceuticalProduct.find({
+    vendor: vendorId,
+  }).lean();
+  const filtered = products.filter((p) => p.photo && p.photo.trim() !== "");
+  return filtered;
+};
 module.exports = {
   validatePharmaceuticalProductFields,
+  findPharmaceuticalsByVendorId,
   saveProduct,
+  findPharmaceuticalsByVendorId,
 };

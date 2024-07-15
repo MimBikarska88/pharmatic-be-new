@@ -5,6 +5,7 @@ const {
 const {
   validatePharmaceuticalProductFields,
   saveProduct,
+  findPharmaceuticalsByVendorId,
 } = require("../services/PharmaceuticalsService");
 const { findVendorById } = require("../services/VendorService");
 module.exports = {
@@ -50,6 +51,8 @@ module.exports = {
       if (!vendorId) {
         return res.status(401).json({ Message: "Not authorized" });
       }
+      const products = await findPharmaceuticalsByVendorId(vendorId);
+      return res.status(200).json({ products });
     },
   },
 };

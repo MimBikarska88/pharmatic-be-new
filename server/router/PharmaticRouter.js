@@ -30,6 +30,10 @@ PharmaticRouter.post("/login", CustomerController["login"]);
 PharmaticRouter.post("/vendor/login", VendorController["login"]);
 PharmaticRouter.get("/vendor/licenses", VendorController["getLicenses"]);
 PharmaticRouter.get(
+  "/vendor/products",
+  PharmaceuticalsController["getAllProductsByVendorId"]
+);
+PharmaticRouter.get(
   "/pharmaceutical/classifications",
   PharmaceuticalsController["getClassifications"]
 );

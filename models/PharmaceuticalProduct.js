@@ -2,6 +2,11 @@ const { Schema, model, Types } = require("mongoose");
 const { MedicationClass } = require("../models/MedicationClass");
 const { Vendor } = require("../models/Vendor");
 const PharmaceuticalProductSchema = new Schema({
+  medicationName: {
+    type: String,
+    required: true,
+    default: null,
+  },
   isoCertificate: {
     type: String,
     default: "",
