@@ -34,6 +34,10 @@ PharmaticRouter.get(
   PharmaceuticalsController["getAllProductsByVendorId"]
 );
 PharmaticRouter.get(
+  "/vendor/products/:productId",
+  PharmaceuticalsController["getProductById"]
+);
+PharmaticRouter.get(
   "/pharmaceutical/classifications",
   PharmaceuticalsController["getClassifications"]
 );

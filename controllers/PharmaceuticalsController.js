@@ -6,6 +6,7 @@ const {
   validatePharmaceuticalProductFields,
   saveProduct,
   findPharmaceuticalsByVendorId,
+  findProductById,
 } = require("../services/PharmaceuticalsService");
 const { findVendorById } = require("../services/VendorService");
 module.exports = {
@@ -53,6 +54,17 @@ module.exports = {
       }
       const products = await findPharmaceuticalsByVendorId(vendorId);
       return res.status(200).json({ products });
+    },
+    getProductById: async (req, res) => {
+      const { productId } = req.params;
+      if (!productId) {
+        return res.status(400).json({ Message: "Product Id is missing" });
+      }
+      const product = await findProductById(productId);
+      if (product) {
+        return res.status(200).json({ ...product });
+      }
+      return res.status(404).message("Not found");
     },
   },
 };

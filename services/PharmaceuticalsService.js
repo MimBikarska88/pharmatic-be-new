@@ -123,9 +123,14 @@ const findPharmaceuticalsByVendorId = async (vendorId) => {
   const filtered = products.filter((p) => p.photo && p.photo.trim() !== "");
   return filtered;
 };
+const findProductById = async (productId) => {
+  const product = await PharmaceuticalProduct.findById(productId).lean();
+  return product;
+};
 module.exports = {
   validatePharmaceuticalProductFields,
   findPharmaceuticalsByVendorId,
   saveProduct,
   findPharmaceuticalsByVendorId,
+  findProductById,
 };
