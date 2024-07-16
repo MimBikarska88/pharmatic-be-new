@@ -105,11 +105,11 @@ const saveProduct = async (product, vendorId) => {
     classification: product.classification,
     vendor: vendorId,
   });
-  if (residence === ResidenceType.EU) {
+  if (residence && Number(residence) === ResidenceType.EU) {
     newProduct.priceEu = product.price;
     newProduct.priceNonEu = convertEuroToDollars(product.price);
   }
-  if (residence === ResidenceType.NON_EU) {
+  if (residence && Number(residence) === ResidenceType.EU) {
     newProduct.priceNonEu = product.price;
     newProduct.priceEu = convertDollarsToEuro(product.price);
   }
