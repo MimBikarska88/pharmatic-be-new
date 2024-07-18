@@ -35,9 +35,9 @@ const CustomerController = {
       return res.status(500).json({ message: err.message });
     }
   },
-  logout: async (req, res) => {
+  logout: (req, res) => {
     logout(req, res);
-    res.status(200).json("User logged out");
+    return res.status(200).json("User logged out");
   },
   login: async (req, res) => {
     const { username, password } = req.body;

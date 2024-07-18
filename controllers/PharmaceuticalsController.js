@@ -48,7 +48,7 @@ module.exports = {
       }
     },
     getAllProductsByVendorId: async (req, res) => {
-      const vendorId = req?.user.id;
+      const vendorId = req?.user?.id;
       if (!vendorId) {
         return res.status(401).json({ Message: "Not authorized" });
       }

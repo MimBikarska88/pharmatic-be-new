@@ -358,6 +358,9 @@ const findVendorById = async (id) => {
   const vendor = await Vendor.findById(id);
   return vendor;
 };
+const logout = (req, res) => {
+  res.clearCookie("token");
+};
 module.exports = {
   validateOrganizationFields,
   validateLicenses,
@@ -370,4 +373,5 @@ module.exports = {
   ResidenceType,
   getVendorAvailableLicenses,
   findVendorById,
+  logout,
 };

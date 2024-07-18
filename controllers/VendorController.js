@@ -8,6 +8,7 @@ const {
   saveVendor,
   login,
   getVendorAvailableLicenses,
+  logout,
 } = require("../services/VendorService");
 const { createToken } = require("../services/JwtService");
 module.exports = {
@@ -57,6 +58,10 @@ module.exports = {
         console.log(err.message);
         res.status(400).json({ message: err.message });
       }
+    },
+    logout: (req, res) => {
+      logout(req, res);
+      return res.status(200).json("Vendor logged out");
     },
     getLicenses: async (req, res) => {
       try {

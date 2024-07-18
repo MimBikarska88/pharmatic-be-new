@@ -25,8 +25,9 @@ PharmaticRouter.post(
   ]),
   VendorController["register"]
 );
-PharmaticRouter.post("/logout", CustomerController["logout"]);
-PharmaticRouter.post("/login", CustomerController["login"]);
+PharmaticRouter.post("/customer/logout", CustomerController["logout"]);
+PharmaticRouter.post("/customer/login", CustomerController["login"]);
+PharmaticRouter.post("/vendor/logout", VendorController["logout"]);
 PharmaticRouter.post("/vendor/login", VendorController["login"]);
 PharmaticRouter.get("/vendor/licenses", VendorController["getLicenses"]);
 PharmaticRouter.get(
