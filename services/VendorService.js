@@ -335,7 +335,6 @@ const getVendorAvailableLicenses = async (id) => {
   if (!found) {
     throw Error("Such Vendor does not exist");
   }
-  console.log(found);
   const availableLicenses = {
     manufactoringLicense: null,
     specialAccessScheme: null,
@@ -360,6 +359,14 @@ const findVendorById = async (id) => {
 };
 const logout = (req, res) => {
   res.clearCookie("token");
+};
+const getLicense = (code) => {
+  const license = Object.entries(licenseCodes).find(
+    (entry) => entry[0] === code
+  );
+  if (!license) {
+    throw Error("Such license doesn't exist");
+  }
 };
 module.exports = {
   validateOrganizationFields,

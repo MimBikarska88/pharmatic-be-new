@@ -72,6 +72,7 @@ const PharmaceuticalProductSchema = new Schema({
   },
   licenseType: {
     type: Number,
+    required: true,
   },
   classification: {
     type: Types.ObjectId,

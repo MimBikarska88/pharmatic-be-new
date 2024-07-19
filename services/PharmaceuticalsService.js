@@ -1,6 +1,6 @@
 const { PharmaceuticalProduct } = require("../models/PharmaceuticalProduct");
 const { ResidenceType } = require("../services/VendorService");
-const path = require("path");
+const { licenseTypes, labels } = require("../services/VendorService");
 const ISO_REGEX = /^ISO\s?\d{4}(:\d{4})?$/;
 const ISO_ERROR_MISSING = "ISO Certificate number required";
 const WRONG_ISO_FORMAT = "ISO Certificate format is incorrect";
@@ -98,6 +98,7 @@ const saveProduct = async (product, vendorId) => {
     indications: product.indications,
     sideEffect: product.sideEffects,
     chemicalFormula: product.chemicalFormula,
+    licenseType: product.licenseType,
     publishedOn: Date.now(),
     modifiedOn: Date.now(),
     photo: product.photo,
@@ -124,7 +125,9 @@ const findPharmaceuticalsByVendorId = async (vendorId) => {
   return filtered;
 };
 const findProductById = async (productId) => {
-  const product = await PharmaceuticalProduct.findById(productId).lean();
+  const product = await PharmaceuticalProduct.findById(productId)
+    .populate("classification")
+    .lean();
   return product;
 };
 module.exports = {
