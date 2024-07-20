@@ -7,8 +7,11 @@ const {
   saveProduct,
   findPharmaceuticalsByVendorId,
   findProductById,
+  updateProduct,
 } = require("../services/PharmaceuticalsService");
 const { findVendorById } = require("../services/VendorService");
+const { deleteFile } = require("../utils/utils");
+const { selectFileLocation } = require("../server/config/multerConfig");
 module.exports = {
   PharmaceuticalsController: {
     getClassifications: async (req, res) => {
@@ -26,9 +29,16 @@ module.exports = {
       }
 
       const product = { ...req.body, photo: req?.photo, pil: req?.pil };
-      console.log(product);
-      let Errors = validatePharmaceuticalProductFields(product);
+      let Errors = validatePharmaceuticalProductFields(product, true);
       if (Object.keys(Errors).length > 0) {
+        if (product.photo && product.photo.trim() !== "") {
+          const photoLocation = selectFileLocation("photo");
+          await deleteFile(product.photo, photoLocation);
+        }
+        if (product.pil && product.pil.trim() !== "") {
+          const pilLocation = selectFileLocation("pil");
+          await deleteFile(product.pil, pilLocation);
+        }
         return res.status(400).json({ Errors: Errors });
       }
       const classification = await findClassificationById(
@@ -65,6 +75,32 @@ module.exports = {
         return res.status(200).json({ ...product });
       }
       return res.status(404).message("Not found");
+    },
+    updateProduct: async (req, res) => {
+      const vendorId = req?.user?.id;
+      if (!vendorId) {
+        return res.status(401).json({ Message: "Not authorized" });
+      }
+      const product = { ...req.body, photo: req?.photo, pil: req?.pil };
+      let Errors = validatePharmaceuticalProductFields(product, false);
+      if (Object.keys(Errors).length > 0) {
+        // delete photo and pil
+        return res.status(400).json({ Errors: Errors });
+      }
+      const classification = await findClassificationById(
+        product.classification.value
+      );
+      if (!classification) {
+        return res
+          .status(404)
+          .json({ Message: "Classification is not existing" });
+      }
+      try {
+        const updatedProduct = await updateProduct(vendorId, product);
+        return res.status(200).json({ ...updatedProduct });
+      } catch (err) {
+        return res.status(401).json({ Message: err.message });
+      }
     },
   },
 };

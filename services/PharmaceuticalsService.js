@@ -1,4 +1,7 @@
-const { PharmaceuticalProduct } = require("../models/PharmaceuticalProduct");
+const {
+  PharmaceuticalProduct,
+  CurrencyEnum,
+} = require("../models/PharmaceuticalProduct");
 const { ResidenceType } = require("../services/VendorService");
 const { licenseTypes, labels } = require("../services/VendorService");
 const ISO_REGEX = /^ISO\s?\d{4}(:\d{4})?$/;
@@ -17,7 +20,8 @@ const MISSING_PIL = "Patient Information Leaflet is required";
 const MISSING_IMAGE = "Product Image is required.";
 const MISSING_CLASSIFICATION = "Classification is required.";
 const MISSING_LICENSE = "License Type is required";
-const validatePharmaceuticalProductFields = (product) => {
+const validatePharmaceuticalProductFields = (product, isCreate = true) => {
+  console.log("is create", isCreate);
   const {
     isoCertificate,
     chemicalFormula,
@@ -61,35 +65,25 @@ const validatePharmaceuticalProductFields = (product) => {
   if (!price) {
     Errors["price"] = MISSING_PRICE;
   }
-  if (!pil) {
-    Errors["pil"] = MISSING_PIL;
-  }
   if (!classification) {
     Errors["classification"] = MISSING_CLASSIFICATION;
   }
   if (!licenseType) {
     Errors["licenseType"] = MISSING_LICENSE;
   }
-  if (!pil) {
+  if (!pil && isCreate) {
     Errors["pil"] = MISSING_PIL;
   }
-  if (!photo) {
-    Errors["pil"] = MISSING_IMAGE;
+  if (!photo && isCreate) {
+    Errors["photo"] = MISSING_IMAGE;
   }
   return Errors;
 };
 
-const exchangeRate = 0.95;
-const convertEuroToDollars = (price) => {
-  return price / exchangeRate;
-};
-
-const convertDollarsToEuro = (price) => {
-  return price * exchangeRate;
-};
 const saveProduct = async (product, vendorId) => {
   const residence = product.residence;
 
+  console.log(residence);
   const newProduct = new PharmaceuticalProduct({
     isoCertificate: product.isoCertificate,
     medicationName: product.medicationName,
@@ -104,15 +98,14 @@ const saveProduct = async (product, vendorId) => {
     photo: product.photo,
     pil: product.pil,
     classification: product.classification,
+    price: product.price,
     vendor: vendorId,
   });
   if (residence && Number(residence) === ResidenceType.EU) {
-    newProduct.priceEu = product.price;
-    newProduct.priceNonEu = convertEuroToDollars(product.price);
+    newProduct.currency = CurrencyEnum.Euro;
   }
-  if (residence && Number(residence) === ResidenceType.EU) {
-    newProduct.priceNonEu = product.price;
-    newProduct.priceEu = convertDollarsToEuro(product.price);
+  if (residence && Number(residence) === ResidenceType.NON_EU) {
+    newProduct.currency = CurrencyEnum.Dollar;
   }
   const created = await newProduct.save();
   return created;
@@ -130,10 +123,55 @@ const findProductById = async (productId) => {
     .lean();
   return product;
 };
+const updateProduct = async (vendorId, product) => {
+  try {
+    if (!product) {
+      throw Error("Not found");
+    }
+    const { pil, photo, _id } = product;
+    const exists = await PharmaceuticalProduct.findById(_id);
+    if (!exists) {
+      throw Error("Not found");
+    }
+    if (exists.vendor.toString() !== vendorId) {
+      throw Error("Not authorized");
+    }
+    const data = {
+      isoCertificate: product.isoCertificate,
+      medicationName: product.medicationName,
+      appearance: product.appearance,
+      routeOfAdministration: product.routeOfAdministration,
+      indications: product.indications,
+      sideEffect: product.sideEffects,
+      chemicalFormula: product.chemicalFormula,
+      licenseType: product.licenseType,
+      modifiedOn: Date.now(),
+      classification: product.classification.value,
+      licenseType: product.licenseType.value,
+      price: product.price,
+    };
+    if (pil && pil.trim() !== "") {
+      data["pil"] = pil;
+    }
+    if (photo && photo.trim() !== "") {
+      data["photo"] = photo;
+    }
+    const updated = await PharmaceuticalProduct.findByIdAndUpdate(
+      _id,
+      { ...data },
+      { new: true, runValidators: true }
+    );
+    return updated;
+  } catch (err) {
+    console.log(err.message);
+    throw Error("Error updating product.");
+  }
+};
 module.exports = {
   validatePharmaceuticalProductFields,
   findPharmaceuticalsByVendorId,
   saveProduct,
   findPharmaceuticalsByVendorId,
   findProductById,
+  updateProduct,
 };

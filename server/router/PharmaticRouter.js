@@ -6,7 +6,6 @@ const {
 } = require("../../controllers/PharmaceuticalsController");
 
 const { upload } = require("../config/multerConfig");
-const { getVendorAvailableLicenses } = require("../../services/VendorService");
 
 const PharmaticRouter = Router();
 PharmaticRouter.post(
@@ -50,7 +49,14 @@ PharmaticRouter.post(
   ]),
   PharmaceuticalsController["createPharmaceuticalProduct"]
 );
-
+PharmaticRouter.put(
+  "/products/:productId",
+  upload.fields([
+    { name: "pil", maxCount: 1 },
+    { name: "photo", maxCount: 1 },
+  ]),
+  PharmaceuticalsController["updateProduct"]
+);
 module.exports = {
   PharmaticRouter,
 };

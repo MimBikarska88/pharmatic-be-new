@@ -1,6 +1,12 @@
 const { Schema, model, Types } = require("mongoose");
 const { MedicationClass } = require("../models/MedicationClass");
 const { Vendor } = require("../models/Vendor");
+
+const CurrencyEnum = {
+  Euro: 1,
+  Dollar: 2,
+};
+Object.freeze(CurrencyEnum);
 const PharmaceuticalProductSchema = new Schema({
   medicationName: {
     type: String,
@@ -42,15 +48,15 @@ const PharmaceuticalProductSchema = new Schema({
     default: "",
     require: true,
   },
-  priceEu: {
+  price: {
     type: Number,
     default: 0,
     require: true,
   },
-  priceNonEu: {
+  currency: {
     type: Number,
-    default: 0,
-    require: true,
+    enum: Object.values(CurrencyEnum), // Restrict to values in StatusEnum
+    required: true,
   },
   publishedOn: {
     type: Date,
@@ -86,4 +92,4 @@ const PharmaceuticalProduct = model(
   PharmaceuticalProductSchema
 );
 
-module.exports = { PharmaceuticalProduct };
+module.exports = { PharmaceuticalProduct, CurrencyEnum };

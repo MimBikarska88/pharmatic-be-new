@@ -33,6 +33,7 @@ const selectFileLocation = (filename) => {
 };
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    console.log("here in multer");
     const location = selectFileLocation(file.fieldname);
     //req.location = location;
     cb(null, location);
@@ -42,10 +43,11 @@ const storage = multer.diskStorage({
       Date.now().toString() + path.extname(file.originalname)
     );
     req[`${file.fieldname}`] = newFileName;
+    console.log("here in multer", newFileName);
     cb(null, newFileName);
   },
 });
 
 const upload = multer({ storage: storage });
 
-module.exports = { upload };
+module.exports = { upload, selectFileLocation };
