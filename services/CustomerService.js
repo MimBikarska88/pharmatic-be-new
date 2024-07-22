@@ -1,4 +1,6 @@
 const { Customer } = require("../models/Customer");
+const { deleteFile } = require("../utils/utils");
+const { selectFileLocation } = require("../server/config/multerConfig");
 const bcrypt = require("bcrypt");
 
 const MAX_LENGTH_FIRST_NAME = 50;
@@ -151,6 +153,15 @@ const login = async (email, password) => {
   }
   return user;
 };
+const deleteMedicalCheckUpFileIfErrors = async (req) => {
+  const { latestMedicalCheckup } = req;
+  if (latestMedicalCheckup && latestMedicalCheckup.trim() !== "") {
+    const latestMedicalCheckupLocation = selectFileLocation(
+      "latestMedicalCheckup"
+    );
+    await deleteFile(latestMedicalCheckup, latestMedicalCheckupLocation);
+  }
+};
 module.exports = {
   create,
   validateContactFields,
@@ -158,4 +169,5 @@ module.exports = {
   checkIfEmailExists,
   logout,
   login,
+  deleteMedicalCheckUpFileIfErrors,
 };

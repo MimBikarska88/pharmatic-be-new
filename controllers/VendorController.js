@@ -9,6 +9,7 @@ const {
   login,
   getVendorAvailableLicenses,
   logout,
+  deleteFilesIfErrorsExists,
 } = require("../services/VendorService");
 const { createToken } = require("../services/JwtService");
 module.exports = {
@@ -17,29 +18,35 @@ module.exports = {
       const vendor = JSON.parse(req.body.vendor);
       let Errors = validateOrganizationFields(vendor);
       if (Object.keys(Errors).length > 0) {
+        deleteFilesIfErrorsExists(req);
         return res.status(400).json({ Errors, tabName: tabName.organization });
       }
       Errors = validateLicenses(vendor);
       if (Object.keys(Errors).length > 0) {
+        deleteFilesIfErrorsExists(req);
         return res.status(400).json({ Errors, tabName: tabName.licenses });
       }
       Errors = validateAddress(vendor);
       if (Object.keys(Errors).length > 0) {
+        deleteFilesIfErrorsExists(req);
         return res.status(400).json({ Errors, tabName: tabName.address });
       }
       Errors = validatePassword(vendor);
       if (Object.keys(Errors).length > 0) {
+        deleteFilesIfErrorsExists(req);
         return res.status(400).json({ Errors, tabName: tabName.credentials });
       }
       const Existing = await findIfSuchVendorExists(vendor);
       console.log(Existing);
       if (Object.values(Existing).some((value) => value)) {
+        deleteFilesIfErrorsExists(req);
         return res.status(400).json({ Existing });
       }
       try {
         const created = await saveVendor(req);
         return res.status(200).json({ ...created });
       } catch (err) {
+        deleteFilesIfErrorsExists(req);
         console.log(err);
         return res
           .status(400)

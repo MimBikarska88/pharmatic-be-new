@@ -1,5 +1,7 @@
 const { Vendor } = require("../models/Vendor");
 const bcrypt = require("bcrypt");
+const { selectFileLocation } = require("../server/config/multerConfig");
+const { deleteFile } = require("../utils/utils");
 /*
 
 
@@ -224,7 +226,8 @@ const findIfVendorWithSuchFDAExists = async (vendor) => {
   return existing;
 };
 const findIfVendorWithSuchFEIIExists = async (vendor) => {
-  const existing = await Vendor.findOne({ FEIINumber: vendor.FEIINumber });
+  const existing = await Vendor.findOne({ FEINumber: vendor.FEINumber });
+
   console.log("FEII", existing);
   return existing;
 };
@@ -249,10 +252,57 @@ const findIfSuchVendorExists = async (vendor) => {
       Existing.FDANumber = true;
     }
     if (await findIfVendorWithSuchFEIIExists(vendor)) {
-      Existing.FEIINumber = true;
+      Existing.FEINumber = true;
     }
   }
   return Existing;
+};
+const deleteFilesIfErrorsExists = async (req) => {
+  const {
+    manufactoringLicense,
+    importExportLicense,
+    specialAccessScheme,
+    clinicalTrialParticipation,
+    specialAuthorizationForControlledSubstances,
+  } = req;
+  if (manufactoringLicense && manufactoringLicense.trim() !== "") {
+    const manufactoringLicenseLocation = selectFileLocation(
+      "manufactoringLicense"
+    );
+    await deleteFile(manufactoringLicense, manufactoringLicenseLocation);
+  }
+  if (importExportLicense && importExportLicense.trim() !== "") {
+    const importExportLicenseLocation = selectFileLocation(
+      "importExportLicense"
+    );
+    await deleteFile(importExportLicense, importExportLicenseLocation);
+  }
+  if (specialAccessScheme && specialAccessScheme.trim() !== "") {
+    const specialAccessSchemeLocation = selectFileLocation(
+      "specialAccessScheme"
+    );
+    await deleteFile(specialAccessScheme, specialAccessSchemeLocation);
+  }
+  if (clinicalTrialParticipation && clinicalTrialParticipation.trim() !== "") {
+    const clinicalTrialParticipationLocation = selectFileLocation(
+      "clinicalTrialParticipation"
+    );
+    await deleteFile(
+      clinicalTrialParticipation,
+      clinicalTrialParticipationLocation
+    );
+  }
+  if (
+    specialAuthorizationForControlledSubstances &&
+    specialAuthorizationForControlledSubstances.trim() !== ""
+  ) {
+    const specialAuthorizationForControlledSubstancesLocation =
+      selectFileLocation("specialAuthorizationForControlledSubstances");
+    await deleteFile(
+      specialAuthorizationForControlledSubstances,
+      specialAuthorizationForControlledSubstancesLocation
+    );
+  }
 };
 const saveVendor = async (req, res) => {
   const vendor = JSON.parse(req.body.vendor);
@@ -381,4 +431,5 @@ module.exports = {
   getVendorAvailableLicenses,
   findVendorById,
   logout,
+  deleteFilesIfErrorsExists,
 };
