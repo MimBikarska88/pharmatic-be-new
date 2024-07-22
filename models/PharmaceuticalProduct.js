@@ -86,6 +86,16 @@ const PharmaceuticalProductSchema = new Schema({
     required: true,
   },
 });
+// Check if it works without it
+PharmaceuticalProductSchema.index({
+  medicationName: "text",
+  isoCertificate: "text",
+  chemicalFormula: "text",
+  appearance: "text",
+  routeOfAdministration: "text",
+  indications: "text",
+  sideEffect: "text",
+});
 
 const PharmaceuticalProduct = model(
   "PharmaceuticalProduct",

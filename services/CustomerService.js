@@ -139,16 +139,17 @@ const create = async (data) => {
 };
 
 const logout = (req, res) => {
+  // fix logout for user  !!!!!!!!!!!!!!!!!!!!!!
   res.clearCookie("token");
 };
 
 const login = async (email, password) => {
-  const user = await User.findOne({ email: email });
+  const user = await Customer.findOne({ email: email });
   if (!user) {
     throw Error("Incorrect email or password");
   }
 
-  if (!bcrypt.compare(password, user.password)) {
+  if (!(await bcrypt.compare(password, user.password))) {
     throw Error("Incorrect email or password");
   }
   return user;

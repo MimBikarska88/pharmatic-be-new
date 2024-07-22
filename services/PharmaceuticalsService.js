@@ -4,6 +4,7 @@ const {
 } = require("../models/PharmaceuticalProduct");
 const { ResidenceType } = require("../services/VendorService");
 const { licenseTypes, labels } = require("../services/VendorService");
+const mongoose = require("mongoose");
 const ISO_REGEX = /^ISO\s?\d{4}(:\d{4})?$/;
 const ISO_ERROR_MISSING = "ISO Certificate number required";
 const WRONG_ISO_FORMAT = "ISO Certificate format is incorrect";
@@ -82,8 +83,6 @@ const validatePharmaceuticalProductFields = (product, isCreate = true) => {
 
 const saveProduct = async (product, vendorId) => {
   const residence = product.residence;
-
-  console.log(residence);
   const newProduct = new PharmaceuticalProduct({
     isoCertificate: product.isoCertificate,
     medicationName: product.medicationName,
@@ -167,6 +166,82 @@ const updateProduct = async (vendorId, product) => {
     throw Error("Error updating product.");
   }
 };
+
+const search = async (classification, vendor, searchText) => {
+  const pipeline = [];
+  if (classification) {
+    pipeline.push({
+      $lookup: {
+        from: "medicationclasses",
+        localField: "classification",
+        foreignField: "_id",
+        as: "classificationDetails",
+      },
+    });
+    pipeline.push({ $unwind: { path: "$classificationDetails" } });
+  }
+  if (vendor) {
+    pipeline.push({
+      $lookup: {
+        from: "vendors",
+        localField: "vendor",
+        foreignField: "_id",
+        as: "vendorDetails",
+      },
+    });
+    pipeline.push({ $unwind: { path: "$vendorDetails" } });
+  }
+
+  const conditions = [];
+  if (classification && mongoose.Types.ObjectId.isValid(classification)) {
+    conditions.push({
+      classification: new mongoose.Types.ObjectId(classification),
+    });
+  }
+  if (vendor) {
+    conditions.push({
+      "vendorDetails.companyName": { $regex: vendor },
+    });
+  }
+  if (searchText) {
+    const partialStringRegex = new RegExp(`.*${searchText}.*`, "i");
+    conditions.push({
+      $or: [
+        { medicationName: partialStringRegex },
+        { chemicalFormula: partialStringRegex },
+        { appearance: partialStringRegex },
+        { routeOfAdministration: partialStringRegex },
+        { indications: partialStringRegex },
+        { sideEffect: partialStringRegex },
+      ],
+    });
+  }
+  if (conditions.length > 0) {
+    pipeline.push({ $match: { $and: conditions } });
+  }
+  pipeline.push({
+    $project: {
+      medicationName: 1,
+      isoCertificate: 1,
+      chemicalFormula: 1,
+      photo: 1,
+      appearance: 1,
+      routeOfAdministration: 1,
+      indications: 1,
+      sideEffect: 1,
+      price: 1,
+      currency: 1,
+      publishedOn: 1,
+      modifiedOn: 1,
+      pil: 1,
+      vendor: 1,
+      licenseType: 1,
+      classification: 1,
+    },
+  });
+  const results = await PharmaceuticalProduct.aggregate(pipeline).exec();
+  return results;
+};
 module.exports = {
   validatePharmaceuticalProductFields,
   findPharmaceuticalsByVendorId,
@@ -174,4 +249,5 @@ module.exports = {
   findPharmaceuticalsByVendorId,
   findProductById,
   updateProduct,
+  search,
 };

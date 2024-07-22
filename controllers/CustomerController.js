@@ -6,6 +6,7 @@ const {
   create,
   logout,
   deleteMedicalCheckUpFileIfErrors,
+  login,
 } = require("../services/CustomerService");
 const { createToken } = require("../services/jwtService");
 
@@ -45,20 +46,20 @@ const CustomerController = {
     return res.status(200).json("User logged out");
   },
   login: async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
-      if (!username || !password) {
+      if (!email || !password) {
         throw new Error("All fields are required");
       }
-      const user = await UserService.login(username, password);
+      const user = await login(email, password);
 
       if (user) {
         token = createToken(user);
         res.cookie("token", token, { httpOnly: true });
-        res.status(200).json("User logged in!");
+        return res.status(200).json({ message: "User logged in!" });
       }
     } catch (err) {
-      return res.status(400).json("Invalid email or password");
+      return res.status(400).json({ message: err.message });
     }
   },
 };

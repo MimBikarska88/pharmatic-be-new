@@ -57,6 +57,7 @@ PharmaticRouter.put(
   ]),
   PharmaceuticalsController["updateProduct"]
 );
+PharmaticRouter.get("/products", PharmaceuticalsController["search"]);
 module.exports = {
   PharmaticRouter,
 };

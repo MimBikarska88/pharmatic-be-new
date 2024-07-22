@@ -8,6 +8,7 @@ const {
   findPharmaceuticalsByVendorId,
   findProductById,
   updateProduct,
+  search,
 } = require("../services/PharmaceuticalsService");
 const { findVendorById } = require("../services/VendorService");
 const { deleteFile } = require("../utils/utils");
@@ -101,6 +102,11 @@ module.exports = {
       } catch (err) {
         return res.status(401).json({ Message: err.message });
       }
+    },
+    search: async (req, res) => {
+      const { classification, vendor, searchText } = req.query;
+      const result = await search(classification, vendor, searchText);
+      return res.status(200).json(result);
     },
   },
 };
