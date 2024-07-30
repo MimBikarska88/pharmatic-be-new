@@ -1,9 +1,2 @@
 node_modules
-uploads/customer/medicalCheckUps
-uploads/vendor/clinicalTrialParticipation
-uploads/vendor/controlledSubstances
-uploads/vendor/drugs/images
-uploads/vendor/drugs/pils
-uploads/vendor/importExportLicense
-uploads/vendor/manufactoringLicense
-uploads/vendor/sas
+uploads
