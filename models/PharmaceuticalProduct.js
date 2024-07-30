@@ -13,6 +13,10 @@ const PharmaceuticalProductSchema = new Schema({
     required: true,
     default: null,
   },
+  stock: {
+    type: Number,
+    required: true,
+  },
   isoCertificate: {
     type: String,
     default: "",

@@ -99,6 +99,7 @@ const saveProduct = async (product, vendorId) => {
     classification: product.classification,
     price: product.price,
     vendor: vendorId,
+    stock: 10,
   });
   if (residence && Number(residence) === ResidenceType.EU) {
     newProduct.currency = CurrencyEnum.Euro;
@@ -148,6 +149,7 @@ const updateProduct = async (vendorId, product) => {
       classification: product.classification.value,
       licenseType: product.licenseType.value,
       price: product.price,
+      stock: product.stock,
     };
     if (pil && pil.trim() !== "") {
       data["pil"] = pil;
