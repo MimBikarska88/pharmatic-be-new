@@ -221,6 +221,7 @@ const search = async (classification, vendor, searchText) => {
   if (conditions.length > 0) {
     pipeline.push({ $match: { $and: conditions } });
   }
+  pipeline.push({ $sort: { stock: -1 } });
   pipeline.push({
     $project: {
       medicationName: 1,
@@ -239,6 +240,7 @@ const search = async (classification, vendor, searchText) => {
       vendor: 1,
       licenseType: 1,
       classification: 1,
+      stock: 1,
     },
   });
   const results = await PharmaceuticalProduct.aggregate(pipeline).exec();

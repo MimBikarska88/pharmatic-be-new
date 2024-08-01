@@ -4,6 +4,7 @@ const { VendorController } = require("../../controllers/VendorController");
 const {
   PharmaceuticalsController,
 } = require("../../controllers/PharmaceuticalsController");
+const { OrderController } = require("../../controllers/OrderController");
 
 const { upload } = require("../config/multerConfig");
 
@@ -58,6 +59,11 @@ PharmaticRouter.put(
   PharmaceuticalsController["updateProduct"]
 );
 PharmaticRouter.get("/products", PharmaceuticalsController["search"]);
+PharmaticRouter.post("/orders", OrderController["createOrder"]);
+PharmaticRouter.get(
+  "/orders/:customerId",
+  OrderController["getOrdersByCustomer"]
+);
 module.exports = {
   PharmaticRouter,
 };

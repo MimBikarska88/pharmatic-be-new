@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const { Schema, model, Types } = require("mongoose");
 
 const OrderItemSchema = new Schema({
   product: {
@@ -13,6 +13,16 @@ const OrderItemSchema = new Schema({
     min: 1,
   },
 });
+const OrderItem = mongoose.model("OrderItem", OrderItemSchema);
+
+const OrderStatusEnum = {
+  Created: 1,
+  Confirmed: 2,
+  Canceled: 3,
+  Delivered: 4,
+  Completed: 5,
+};
+Object.freeze(OrderStatusEnum);
 
 // no need for it to be in another table so it remains just a schema
 module.exports.OrderItemSchema = OrderItemSchema;
@@ -24,9 +34,14 @@ const OrderSchema = new Schema({
     required: true,
   },
   status: {
-    type: String,
-    enum: ["Created", "Confirmed", "Canceled", "Delivered", "Completed"],
+    type: Number,
+    enum: Object.values(OrderStatusEnum),
     required: true,
+  },
+  number: {
+    type: Number,
+    required: true,
+    unique: true,
   },
   createdOn: {
     type: Date,
@@ -50,10 +65,10 @@ const OrderSchema = new Schema({
   },
   items: {
     type: [Types.ObjectId],
-    ref: "OrderItemSchema",
+    ref: "OrderItem",
   },
 });
 
 const Order = mongoose.model("Order", OrderSchema);
 
-module.exports = Order;
+module.exports = { Order, OrderStatusEnum, OrderItem };
