@@ -5,7 +5,7 @@ const createToken = (user) => {
     id: user._id,
     email: user.email,
   };
-  const token = jwt.sign(payload, secret, { expiresIn: "1d" });
+  const token = jwt.sign(payload, secret);
   return token;
 };
 const verifyToken = (token) => {
