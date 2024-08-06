@@ -2,6 +2,7 @@ const { Customer } = require("../models/Customer");
 const { populate } = require("../models/MedicationClass");
 const { OrderItem, OrderStatusEnum, Order } = require("../models/Order");
 const { PharmaceuticalProduct } = require("../models/PharmaceuticalProduct");
+const { Vendor } = require("../models/Vendor");
 const { getRandomNumber } = require("../utils/utils");
 const mongoose = require("mongoose");
 const ORDER_DIGITS = 8;
@@ -56,7 +57,6 @@ const processOrder = async (req, customerId) => {
 
 const getDetailedOrdersForCustomer = async (customerId) => {
   const customer = await Customer.findById(customerId);
-  console.log(customerId);
   if (!customer) {
     throw new Error("Such customer does not exist");
   }
@@ -185,9 +185,66 @@ const changeOrderStatus = async (orderId, customerId, newOrderStatus) => {
   const updatedOrder = await order.save();
   return updatedOrder;
 };
+
+const getAllOrderForVendor = async (vendorId) => {
+  const existing = await Vendor.findById(vendorId);
+  if (!existing) throw Error("Such vendor doesn't exist");
+  const vendorObjectId = new mongoose.Types.ObjectId(vendorId);
+
+  const pipeline = [];
+  pipeline.push({
+    $lookup: {
+      from: "orderitems",
+      localField: "items",
+      foreignField: "_id",
+      as: "newItems",
+      pipeline: [
+        {
+          $lookup: {
+            from: "pharmaceuticalproducts",
+            localField: "product",
+            foreignField: "_id",
+            as: "productInfo",
+          },
+        },
+        {
+          $unwind: { path: "$productInfo" },
+        },
+        {
+          $match: {
+            "productInfo.vendor": vendorObjectId,
+          },
+        },
+        {
+          $project: {
+            productInfo: 1,
+          },
+        },
+      ],
+    },
+  });
+  pipeline.push({
+    $replaceRoot: {
+      newRoot: {
+        $mergeObjects: [{ $arrayElemAt: ["$newItems", 0] }, "$$ROOT"],
+      },
+    },
+  });
+  pipeline.push({
+    $project: {
+      createdOn: 1,
+      number: 1,
+      status: 1,
+      newItems: 1,
+    },
+  });
+  const results = await Order.aggregate(pipeline).exec();
+  return results.filter((order) => order.newItems.length > 0);
+};
 module.exports = {
   processOrder,
   getDetailedOrdersForCustomer,
   getOrderById,
   changeOrderStatus,
+  getAllOrderForVendor,
 };

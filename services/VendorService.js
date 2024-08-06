@@ -358,10 +358,13 @@ const login = async (req) => {
   if (residence === ResidenceType.NON_EU) {
     found = await Vendor.findOne({ FDANumber: FDANumber });
   }
+  console.log(found);
+
   if (!found) {
     throw Error("Wrong credentials!");
   }
   if (!(await bcrypt.compare(password, found.password))) {
+    console.log();
     throw Error("Wrong credentials");
   }
   return found;

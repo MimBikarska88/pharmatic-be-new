@@ -3,6 +3,7 @@ const {
   getDetailedOrdersForCustomer,
   getOrderById,
   changeOrderStatus,
+  getAllOrderForVendor,
 } = require("../services/OrderService");
 
 module.exports = {
@@ -20,15 +21,12 @@ module.exports = {
       }
     },
     getOrdersByCustomer: async (req, res) => {
-      console.log("here getORDERS BY CUSTOMER");
       const id = req.user.id;
       console.log(id);
       const orders = await getDetailedOrdersForCustomer(id);
       return res.status(200).json({ orders: orders });
     },
     getCustomerOrderById: async (req, res) => {
-      console.log("here GET CUSTOMER DETAILED ORDER");
-
       const customerId = req.user.id;
       const orderId = req.params.orderId;
       try {
@@ -51,6 +49,17 @@ module.exports = {
         );
         return res.status(200).json({ updatedOrder });
       } catch (err) {
+        return res.status(500).json({ Message: err.message });
+      }
+    },
+    getAllOrdersByVendor: async (req, res) => {
+      console.log("here getAllOrdersByVendor");
+      try {
+        const vendorId = req.user.id;
+        const orders = await getAllOrderForVendor(vendorId);
+        return res.status(200).json({ orders });
+      } catch (err) {
+        console.log(err.message);
         return res.status(500).json({ Message: err.message });
       }
     },
