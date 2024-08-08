@@ -62,12 +62,8 @@ PharmaticRouter.get("/products", PharmaceuticalsController["search"]);
 PharmaticRouter.post("/orders", OrderController["createOrder"]);
 PharmaticRouter.get("/orders/customer", OrderController["getOrdersByCustomer"]);
 PharmaticRouter.get("/orders/vendor", OrderController["getAllOrdersByVendor"]);
-PharmaticRouter.get(
-  "/orders/:orderId",
-  OrderController["getCustomerOrderById"]
-);
+PharmaticRouter.get("/orders/:role/:orderId", OrderController["getOrderById"]);
 PharmaticRouter.post("/orders/:orderId", OrderController["changeOrderStatus"]);
-///
 
 module.exports = {
   PharmaticRouter,

@@ -241,10 +241,97 @@ const getAllOrderForVendor = async (vendorId) => {
   const results = await Order.aggregate(pipeline).exec();
   return results.filter((order) => order.newItems.length > 0);
 };
+const getOrderByIdForVendor = async (orderNumber, vendorId) => {
+  const existing = await Vendor.findById(vendorId);
+  if (!existing) throw Error("Such vendor doesn't exist");
+
+  const pipeline = [];
+  const vendorObjectId = new mongoose.Types.ObjectId(vendorId);
+
+  pipeline.push({
+    $match: {
+      number: Number(orderNumber),
+    },
+  });
+  pipeline.push({
+    $lookup: {
+      from: "customers",
+      localField: "customer",
+      foreignField: "_id",
+      as: "customerInfo",
+    },
+  });
+  pipeline.push({ $unwind: { path: "$customerInfo" } });
+  pipeline.push({
+    $lookup: {
+      from: "orderitems",
+      localField: "items",
+      foreignField: "_id",
+      as: "newItems",
+      pipeline: [
+        {
+          $lookup: {
+            from: "pharmaceuticalproducts",
+            localField: "product",
+            foreignField: "_id",
+            as: "productInfo",
+          },
+        },
+        {
+          $unwind: { path: "$productInfo" },
+        },
+        {
+          $match: {
+            "productInfo.vendor": vendorObjectId,
+          },
+        },
+        {
+          $project: {
+            productInfo: 1,
+            quantity: 1,
+          },
+        },
+      ],
+    },
+  });
+  pipeline.push({
+    $replaceRoot: {
+      newRoot: {
+        $mergeObjects: [{ $arrayElemAt: ["$newItems", 0] }, "$$ROOT"],
+      },
+    },
+  });
+  pipeline.push({
+    $project: {
+      createdOn: 1,
+      number: 1,
+      status: 1,
+      newItems: 1,
+      "customerInfo._id": 1,
+      "customerInfo.detailedAddress": 1,
+      "customerInfo.phoneNumber": 1,
+    },
+  });
+  const orders = await Order.aggregate(pipeline).exec();
+  if (orders.length > 0) {
+    const { newItems, customerInfo, ...rest } = orders[0];
+    return {
+      ...rest,
+      items: newItems.map((item) => ({
+        quantity: item.quantity,
+        ...item.productInfo,
+      })),
+      customer: customerInfo,
+    };
+  } else {
+    return null;
+  }
+};
 module.exports = {
   processOrder,
   getDetailedOrdersForCustomer,
   getOrderById,
   changeOrderStatus,
   getAllOrderForVendor,
+  getOrderByIdForVendor,
 };

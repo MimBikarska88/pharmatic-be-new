@@ -4,6 +4,7 @@ const {
   getOrderById,
   changeOrderStatus,
   getAllOrderForVendor,
+  getOrderByIdForVendor,
 } = require("../services/OrderService");
 
 module.exports = {
@@ -22,16 +23,22 @@ module.exports = {
     },
     getOrdersByCustomer: async (req, res) => {
       const id = req.user.id;
-      console.log(id);
       const orders = await getDetailedOrdersForCustomer(id);
       return res.status(200).json({ orders: orders });
     },
-    getCustomerOrderById: async (req, res) => {
-      const customerId = req.user.id;
+    getOrderById: async (req, res) => {
+      const Id = req.user.id;
+      const role = req.params.role;
       const orderId = req.params.orderId;
       try {
-        const order = await getOrderById(customerId, orderId);
-        return res.status(200).json({ order });
+        if (role === "customer") {
+          const order = await getOrderById(Id, orderId);
+          return res.status(200).json({ order });
+        }
+        if (role === "vendor") {
+          const order = await getOrderByIdForVendor(orderId, Id);
+          return res.status(200).json({ order });
+        }
       } catch (err) {
         return res.status(500).json({ Message: err.message });
       }
@@ -53,13 +60,11 @@ module.exports = {
       }
     },
     getAllOrdersByVendor: async (req, res) => {
-      console.log("here getAllOrdersByVendor");
       try {
         const vendorId = req.user.id;
         const orders = await getAllOrderForVendor(vendorId);
         return res.status(200).json({ orders });
       } catch (err) {
-        console.log(err.message);
         return res.status(500).json({ Message: err.message });
       }
     },
