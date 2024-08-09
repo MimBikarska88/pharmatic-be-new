@@ -143,6 +143,10 @@ const logout = (req, res) => {
   res.clearCookie("token");
 };
 
+const filterUser = (user) => {
+  const { __v, password, ...rest } = user;
+  return { ...rest };
+};
 const login = async (email, password) => {
   const user = await Customer.findOne({ email: email });
   if (!user) {
@@ -152,7 +156,7 @@ const login = async (email, password) => {
   if (!(await bcrypt.compare(password, user.password))) {
     throw Error("Incorrect email or password");
   }
-  return user;
+  return filterUser(user._doc);
 };
 const deleteMedicalCheckUpFileIfErrors = async (req) => {
   const { latestMedicalCheckup } = req;

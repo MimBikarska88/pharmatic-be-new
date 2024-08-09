@@ -56,7 +56,7 @@ const CustomerController = {
       if (user) {
         token = createToken(user);
         res.cookie("token", token, { httpOnly: true });
-        return res.status(200).json({ message: "User logged in!" });
+        return res.status(200).json({ user, message: "User logged in!" });
       }
     } catch (err) {
       return res.status(400).json({ message: err.message });
