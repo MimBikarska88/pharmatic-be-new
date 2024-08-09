@@ -137,7 +137,7 @@ const validateLicenses = (vendor) => {
     FEINumber,
   } = vendor;
   if (!manufactoringLicense) {
-    Errors.manufacturingLicense = REQUIRED_MANUFACTORING_LICENSE;
+    Errors.manufactoringLicense = REQUIRED_MANUFACTORING_LICENSE;
   }
   if (!importExportLicense) {
     Errors.importExportLicense = REQUIRED_IMPORT_EXPORT_LICENSE;

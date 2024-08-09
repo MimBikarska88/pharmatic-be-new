@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema, model, Types } = require("mongoose");
-
+const { CurrencyEnum } = require("./PharmaceuticalProduct");
 const OrderItemSchema = new Schema({
   product: {
     type: Types.ObjectId,
@@ -11,6 +11,13 @@ const OrderItemSchema = new Schema({
     type: Number,
     required: true,
     min: 1,
+  },
+  price: {
+    type: Number,
+  },
+  currency: {
+    type: Number,
+    enum: Object.values(CurrencyEnum), // Restrict to values in StatusEnum
   },
 });
 const OrderItem = mongoose.model("OrderItem", OrderItemSchema);

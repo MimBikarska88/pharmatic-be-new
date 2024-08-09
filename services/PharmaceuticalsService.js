@@ -55,7 +55,7 @@ const validatePharmaceuticalProductFields = (product, isCreate = true) => {
     Errors["medicationName"] = MISSING_MEDICATION_NAME;
   }
   if (!routeOfAdministration || routeOfAdministration.trim() === "") {
-    Errors["roadOfAdministration"] = MISSING_ROA;
+    Errors["routeOfAdministration"] = MISSING_ROA;
   }
   if (!indications || indications.trim() === "") {
     Errors["indications"] = MISSING_INDICATIONS;

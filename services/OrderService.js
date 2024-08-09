@@ -33,6 +33,8 @@ const processOrder = async (req, customerId) => {
         const orderItem = new OrderItem({
           product: item._id,
           quantity: cartQuantity,
+          currency: exists.currency,
+          price: exists.price,
         });
         const savedOrderItem = await orderItem.save();
         items.push(savedOrderItem._id);
@@ -121,7 +123,12 @@ const getOrderById = async (customerId, orderId) => {
   return {
     ...order,
     items: order.items.map((item) => {
-      return { ...item.product, quantity: item.quantity };
+      return {
+        ...item.product,
+        quantity: item.quantity,
+        price: item.price,
+        currency: item.currency,
+      };
     }),
   };
 };
@@ -319,6 +326,8 @@ const getOrderByIdForVendor = async (orderNumber, vendorId) => {
       ...rest,
       items: newItems.map((item) => ({
         quantity: item.quantity,
+        price: item.price,
+        currency: item.currency,
         ...item.productInfo,
       })),
       customer: customerInfo,
